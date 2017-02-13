@@ -6,7 +6,7 @@ int main(int argc, char **argv) {
 	ALLEGRO_DISPLAY *display = NULL;
 	ALLEGRO_SAMPLE *sample = NULL;
 	al_init();
-	
+	al_init_acodec_addon();
 	
 
 	if (!al_install_audio()) {

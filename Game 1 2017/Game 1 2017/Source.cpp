@@ -30,7 +30,6 @@ int main(int argc, char **argv) {
 	int damage2 = health2;
 	cout << "You have been abducted by mostly peaceful aliens. They are having trouble with a corrupt president named Boogie Barker. Their economy is one that trades instead of using currency. You must stop Barker, and save this strange planet to avoid them destorying yours." << endl;//intro
 	while (1 && health>0) {//while loop that keeps the game open as long as user's health is above 0
-		cout << "Your health is " << ": " << health << endl;
 		switch (room) {//switches rooms
 		case 1: system("Color 8A");
 			picture1 = al_load_bitmap("bedroom.jpg");
