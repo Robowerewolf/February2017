@@ -1,7 +1,11 @@
 #include <stdio.h>
 #include <allegro5/allegro.h>
 #include <cmath>
-
+#include <allegro5/allegro_ttf.h>
+#include <allegro5/allegro_font.h>
+#include <allegro5/allegro.h>
+#include <iostream>
+using namespace std;
 const float FPS = 300;
 const int SCREEN_W = 640;
 const int SCREEN_H = 480;
@@ -14,6 +18,7 @@ int main(int argc, char **argv) {
 	ALLEGRO_EVENT_QUEUE *event_queue = NULL;
 	ALLEGRO_TIMER *timer = NULL;
 	ALLEGRO_BITMAP *bouncer = NULL;
+
 	float bouncer_x = SCREEN_W / 2.0 - BOUNCER_SIZE / 2.0;
 	float bouncer_y = SCREEN_H / 2.0 - BOUNCER_SIZE / 2.0;
 	float bouncer_dx = -4.0, bouncer_dy = 4.0;
@@ -21,18 +26,20 @@ int main(int argc, char **argv) {
 	double t = 1;
 
 	al_init();
-
+	al_init_font_addon();
+	al_init_ttf_addon();
 	timer = al_create_timer(1.0 / FPS);
-
+	ALLEGRO_FONT *font = al_load_ttf_font("WORDSOFLOVE.ttf", 72, 0);
 	display = al_create_display(SCREEN_W, SCREEN_H);
 
-
+	if (font == NULL){
+		cout << "font didn't load" << endl;}
 	bouncer = al_create_bitmap(BOUNCER_SIZE, BOUNCER_SIZE);
 
 	al_set_target_bitmap(bouncer);
 
 	al_clear_to_color(al_map_rgb(255, 0, 255));
-
+	al_draw_text(font, al_map_rgb(255, 20, 147), 640 / 2, (480 / 4), ALLEGRO_ALIGN_CENTRE, "Happy Valentines Day!");
 	al_set_target_bitmap(al_get_backbuffer(display));
 
 	event_queue = al_create_event_queue();
@@ -42,7 +49,7 @@ int main(int argc, char **argv) {
 	al_register_event_source(event_queue, al_get_timer_event_source(timer));
 
 	//change the numbers to change the background color, 000 is black
-	al_clear_to_color(al_map_rgb(0, 0, 0));
+	al_clear_to_color(al_map_rgb(255, 255, 255));
 
 	al_flip_display();
 
@@ -59,16 +66,15 @@ int main(int argc, char **argv) {
 			if (bouncer_x < 0 || bouncer_x > SCREEN_W - BOUNCER_SIZE) {
 				bouncer_dx = -bouncer_dx;
 			}
-
+			al_draw_text(font, al_map_rgb(255, 20, 147), 640 / 2, (480 / 4), ALLEGRO_ALIGN_CENTRE, "Happy Valentines Day!");
 			if (bouncer_y < 0 || bouncer_y > SCREEN_H - BOUNCER_SIZE) {
 				bouncer_dy = -bouncer_dy;
 			}
 
 			//////////////////////////////////////////////////////////////////////////////////////////////
 			//here's the parametric equations that determine the shape!!
-			bouncer_x = 250 + 45 * (1.6*cos(t) - (1.2*cos((1.6*t) / .6)));
-			bouncer_y = 250 + 45 * (1.6*sin(t) - (1.2*sin((1.6*t) / .6)));
-
+			bouncer_x = 250 + 10 * (16 * (sin(t)*(sin(t))*(sin(t))));
+			bouncer_y = 250 + (10 * (13 * cos(t) - 5 * cos(2 * t) - 2 * cos(3 * t) - cos(4 * t)))*-1;
 			/////////////////////////////////////////////////////////////////////////////////////////////////////
 			redraw = true;
 		}
@@ -88,7 +94,7 @@ int main(int argc, char **argv) {
 			al_set_target_bitmap(bouncer);
 
 			//mess with this last line here to change colors
-			al_clear_to_color(al_map_rgb(200, t, 100));
+			al_clear_to_color(al_map_rgb(200, 100, t));
 			al_set_target_bitmap(al_get_backbuffer(display));
 			al_draw_bitmap(bouncer, bouncer_x, bouncer_y, 0);
 
