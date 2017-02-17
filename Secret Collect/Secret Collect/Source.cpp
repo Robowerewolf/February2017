@@ -78,30 +78,34 @@ int main()
 			//if the up button is pressed AND we're still below the top wall,
 			//move the box "up" by 4 pixels
 			if ((key[0] && player_y >= 0) &&
-				!(player_x > 70 && player_x <298 && player_y <202 && player_y>194))
-
+				!(player_x > 70 && player_x <298 && player_y <202 && player_y>194) &&
+				!(player_x > 366 && player_x < 600 && player_y < 402 && player_y>394))
 			{
-				player_y -= 4.0;
+				player_y -= 2.0;
 			}
 
 			//if the down button is pressed AND we're still above the bottom wall
 			//move the box "down" by 4 pixels
-			if (key[1] && player_y <= 480 - 32) {
-				player_y += 4.0;
+			if ((key[1] && player_y <= 480 - 32) && 
+                !(player_x > 66 && player_x <298 && player_y >66 && player_y<80) &&
+				!(player_x > 368 && player_x <602 && player_y >66 && player_y<70))
+			{
+				player_y += 2.0;
 			}
 			//if the left button is pressed AND we're still right of the left wall
 			//move the box left by 4 pixels
-			if (key[2] && player_x >= 0)
+			if ((key[2] && player_x >= 0) &&
 
+				!(player_y>70 && player_y <200 && player_x >294 && player_x <302))
 			{
-				player_x -= 4.0;
+				player_x -= 2.0;
 			}
 
-			//if the left button is pressed AND we're still left of the right wall
+			//if the right button is pressed AND we're still left of the right wall
 			//move the box right by 4 pixels
 			if ((key[3] && player_x <= 640 - 32) &&
 				!(player_x > 66 && player_x <78 && player_y >66 && player_y<198)) {
-				player_x += 4.0;
+				player_x += 2.0;
 			}
 
 			//redraw at every tick of the timer
@@ -186,6 +190,7 @@ int main()
 
 			//wall 1
 			al_draw_filled_rectangle(100, 100, 300, 200, al_map_rgb(200, 100, 0));
+			al_draw_filled_rectangle(400, 100, 600, 400, al_map_rgb(120, 145, 27));
 
 			al_flip_display();
 		}
