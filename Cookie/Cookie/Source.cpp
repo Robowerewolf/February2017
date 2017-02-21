@@ -1,15 +1,15 @@
 #include <iostream>
 using namespace std;
-int input;
+char input;
 int main() {
-	cout << "What kind of cookie would you like? 1,2, or 3" << endl;
+	cout << "What kind of cookie would you like?" << endl;
 	cin >> input;
 	switch (input) {
-	case 1: cout << "Chocolate chip" << endl;
+	case 'c': cout << "Chocolate chip" << endl;
 		break;
-	case 2: cout << "Oatmeal" << endl;
+	case 'o': cout << "Oatmeal" << endl;
 		break;
-	case 3: cout << "Macadamia white chip" << endl;
+	case 'm': cout << "Macadamia white chip" << endl;
 		break;
 	}
 }
