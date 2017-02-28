@@ -6,7 +6,6 @@ int main() {
 	annoying();
 }
 void annoying() {
-
 	Beep(400, 1200);
 	Beep(600, 1200);
 	Beep(100, 1200); 
@@ -17,20 +16,7 @@ void annoying() {
 	MessageBox(NULL, "world", "hello", NULL);
 	MessageBox(NULL, "do it", "dont", NULL);
 	MessageBox(NULL, " dont do it", "i said", NULL);
-	MessageBox(NULL, "too many boxes", "dont", NULL);
-	MessageBox(NULL, "too many boxes", "dont", NULL);
-	MessageBox(NULL, "too many boxes", "dont", NULL);
-	MessageBox(NULL, "too many boxes", "dont", NULL);
-	MessageBox(NULL, "too many boxes", "dont", NULL);
-	MessageBox(NULL, "too many boxes", "dont", NULL);
-	MessageBox(NULL, "too many boxes", "dont", NULL);
-	MessageBox(NULL, "too many boxes", "dont", NULL);
-	MessageBox(NULL, "too many boxes", "dont", NULL);
-	MessageBox(NULL, "too many boxes", "dont", NULL);
-	MessageBox(NULL, "too many boxes", "dont", NULL);
-	MessageBox(NULL, "too many boxes", "dont", NULL);
-	MessageBox(NULL, "too many boxes", "dont", NULL);
-	MessageBox(NULL, "too many boxes", "dont", NULL);
-	MessageBox(NULL, "too many boxes", "dont", NULL);
-	MessageBox(NULL, "too many boxes", "dont", NULL);
+	for (int i = 0; i < 20; i++) {
+		MessageBox(NULL, "too many boxes", "dont", NULL);
+	}
 }
