@@ -148,11 +148,11 @@ int main()
 			}
 
 			//put speed bumps here! check for position and
-			//if (player_x > 350 && player_x < 370 && player_y >166 && player_y < 170) {
-			//	al_flip_display();
+	//		if (player_x > 350 && player_x < 370 && player_y >166 && player_y < 170) {
+	//			al_flip_display();
 			//play sound
 			//and increase speed
-		//	speed++;
+	//		speed++;
 			//erase speed bumps! (maybe have a boolean to turn it off and on)
 
 			//check for collect here!

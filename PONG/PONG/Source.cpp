@@ -1,5 +1,6 @@
 #include "allegro5/allegro_image.h"
 #include "allegro5/allegro.h"
+int collision(int b1x, int b1y, int b1w, int b1h, int b2x, int b2y, int b2w, int b2h);
 int main()
 {
 	ALLEGRO_DISPLAY *display = NULL;
@@ -10,14 +11,20 @@ int main()
 	ALLEGRO_BITMAP *ball = NULL;
 	//these two variables hold the x and y positions of the square
 	//initalize these variables to where you want your square to start
-	float paddle_x = 0;
+	float paddle_x = 30;
 	float paddle_y = 160;
+	float paddle_w = 32;
+	float paddle_h = 75;
 
-	float paddle2_x = 635;
+	float paddle2_x = 585;
 	float paddle2_y = 160;
+	float paddle2_w = 32;
+	float paddle2_h = 75;
 
 	float ball_x = 180;
 	float ball_y = 160;
+	float ball_w = 32;
+	float ball_h = 32;
 	//here's our key states. they're all starting as "false" because nothing has been pressed yet.
 	//the first slot represents "up", then "down", "left" and "right"
 	float ball_dx = 4.0, ball_dy = -4.0;
@@ -43,13 +50,13 @@ int main()
 	al_set_target_bitmap(ball);
 	al_clear_to_color(al_map_rgb(137, 200, 5));
 
-	paddle = al_create_bitmap(5, 75);
+	paddle = al_create_bitmap(32, 75);
 
 	al_set_target_bitmap(paddle);
 
 	al_clear_to_color(al_map_rgb(255, 255, 255));
 
-	paddle2 = al_create_bitmap(5, 75);
+	paddle2 = al_create_bitmap(32, 75);
 
 	al_set_target_bitmap(paddle2);
 
@@ -130,100 +137,120 @@ int main()
 				//redraw at every tick of the timer
 			}
 
-				ball_x += ball_dx;
-				ball_y -= ball_dy;
-				redraw = true;
-			}
-			///////////////////////////////////////////////////////////////////////////////////////////////////////
-			else if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+			ball_x += ball_dx;
+			ball_y -= ball_dy;
+
+
+			if ((collision(paddle_x, paddle_y, paddle_w, paddle_h, ball_x, ball_y, ball_w, ball_h) == 1) ||
+				(collision(paddle2_x, paddle2_y, paddle2_w,paddle2_h, ball_x, ball_y, ball_w, ball_h) == 1))
+				ball_dx = -ball_dx;
+
+
+
+			redraw = true;
+		}
+		///////////////////////////////////////////////////////////////////////////////////////////////////////
+		else if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+			break;
+		}
+
+		//////////////////////////////////////////////////////////////////////////////////////////////////////
+		//here's the algorithm that turns key presses into events
+		//a "key down" event is when a key is pushed
+		//while a "key up" event is when a key is released
+
+		//has something been pressed on the keyboard?
+		else if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
+
+			//"keycode" holds all the different keys on the keyboard
+			switch (ev.keyboard.keycode) {
+
+				//if the up key has been pressed
+			case ALLEGRO_KEY_UP:
+				key2[0] = true;
 				break;
+
+				//if the down key has been pressed
+			case ALLEGRO_KEY_DOWN:
+				key2[1] = true;
+				break;
+
+				//if the left key has been pressed
+
+			case ALLEGRO_KEY_W:
+				key[0] = true;
+				break;
+
+				//if the down key has been pressed
+			case ALLEGRO_KEY_S:
+				key[1] = true;
+				break;
+
+				//if the left key has been pressed
 			}
+		}
+		//has something been released on the keyboard?
+		else if (ev.type == ALLEGRO_EVENT_KEY_UP) {
+			switch (ev.keyboard.keycode) {
+			case ALLEGRO_KEY_UP:
+				key2[0] = false;
+				break;
 
-			//////////////////////////////////////////////////////////////////////////////////////////////////////
-			//here's the algorithm that turns key presses into events
-			//a "key down" event is when a key is pushed
-			//while a "key up" event is when a key is released
+			case ALLEGRO_KEY_DOWN:
+				key2[1] = false;
+				break;
 
-			//has something been pressed on the keyboard?
-			else if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
+				//kill the program if someone presses escape
+			case ALLEGRO_KEY_ESCAPE:
+				doexit = true;
+				break;
 
-				//"keycode" holds all the different keys on the keyboard
-				switch (ev.keyboard.keycode) {
+			case ALLEGRO_KEY_W:
+				key[0] = false;
+				break;
 
-					//if the up key has been pressed
-				case ALLEGRO_KEY_UP:
-					key2[0] = true;
-					break;
-
-					//if the down key has been pressed
-				case ALLEGRO_KEY_DOWN:
-					key2[1] = true;
-					break;
-
-					//if the left key has been pressed
-
-				case ALLEGRO_KEY_W:
-					key[0] = true;
-					break;
-
-					//if the down key has been pressed
-				case ALLEGRO_KEY_S:
-					key[1] = true;
-					break;
-
-					//if the left key has been pressed
-				}
-			}
-			//has something been released on the keyboard?
-			else if (ev.type == ALLEGRO_EVENT_KEY_UP) {
-				switch (ev.keyboard.keycode) {
-				case ALLEGRO_KEY_UP:
-					key2[0] = false;
-					break;
-
-				case ALLEGRO_KEY_DOWN:
-					key2[1] = false;
-					break;
-
-					//kill the program if someone presses escape
-				case ALLEGRO_KEY_ESCAPE:
-					doexit = true;
-					break;
-
-				case ALLEGRO_KEY_W:
-					key[0] = false;
-					break;
-
-				case ALLEGRO_KEY_S:
-					key[1] = false;
-					break;
-				}
-			}
-
-
-			//RENDER SECTION
-			//if the clock ticked but no other events happened, don't bother redrawing
-			if (redraw && al_is_event_queue_empty(event_queue)) {
-				redraw = false;
-
-				//paint black over the old screen, so the old square dissapears
-				//al_clear_to_color(al_map_rgb(0, 0, 0));
-				al_clear_to_color(al_map_rgb(0, 0, 0));
-				//the algorithm above just changes the x and y coordinates
-				//here's where the bitmap is actually drawn somewhere else
-				al_draw_bitmap(ball, ball_x, ball_y, 0);
-				al_draw_bitmap(paddle, paddle_x, paddle_y, 0);
-				al_draw_bitmap(paddle2, paddle2_x, paddle2_y, 0);
-				al_flip_display();
+			case ALLEGRO_KEY_S:
+				key[1] = false;
+				break;
 			}
 		}
 
-		al_destroy_bitmap(ball);
-		al_destroy_bitmap(paddle);
-		al_destroy_bitmap(paddle2);
-		al_destroy_timer(timer);
-		al_destroy_display(display);
-		al_destroy_event_queue(event_queue);
 
-		return 0;
+		//RENDER SECTION
+		//if the clock ticked but no other events happened, don't bother redrawing
+		if (redraw && al_is_event_queue_empty(event_queue)) {
+			redraw = false;
+
+			//paint black over the old screen, so the old square dissapears
+			//al_clear_to_color(al_map_rgb(0, 0, 0));
+			al_clear_to_color(al_map_rgb(0, 0, 0));
+			//the algorithm above just changes the x and y coordinates
+			//here's where the bitmap is actually drawn somewhere else
+			al_draw_bitmap(ball, ball_x, ball_y, 0);
+			al_draw_bitmap(paddle, paddle_x, paddle_y, 0);
+			al_draw_bitmap(paddle2, paddle2_x, paddle2_y, 0);
+			al_flip_display();
+		}
 	}
+
+	al_destroy_bitmap(ball);
+	al_destroy_bitmap(paddle);
+	al_destroy_bitmap(paddle2);
+	al_destroy_timer(timer);
+	al_destroy_display(display);
+	al_destroy_event_queue(event_queue);
+
+	return 0;
+}
+
+int collision(int b1x, int b1y, int b1w, int b1h, int b2x, int b2y, int b2w, int b2h) {
+	if ((b2x > b1x + b1w) || //box2 is to the right of box1
+		(b2x + b2w< b1x) ||//box2 is to the left of box1
+		(b2y > b1y + b1w) || 
+		(b2y + b2w< b1y) ||
+		(b1y + b1h<b2y) ||
+		(b1y > b2y + b2h))
+		return 0;
+	else
+		return 1;
+}
