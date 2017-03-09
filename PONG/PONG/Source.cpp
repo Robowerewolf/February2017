@@ -1,5 +1,11 @@
 #include "allegro5/allegro_image.h"
 #include "allegro5/allegro.h"
+#include "allegro5/allegro_font.h"
+#include "allegro5/allegro_ttf.h"
+#include "allegro5/allegro_audio.h"
+#include "allegro5/allegro_acodec.h"
+#include <iostream>
+using namespace std;
 int collision(int b1x, int b1y, int b1w, int b1h, int b2x, int b2y, int b2w, int b2h);
 int main()
 {
@@ -9,6 +15,10 @@ int main()
 	ALLEGRO_BITMAP *paddle = NULL;
 	ALLEGRO_BITMAP *paddle2 = NULL;
 	ALLEGRO_BITMAP *ball = NULL;
+	ALLEGRO_FONT * font = NULL;
+	ALLEGRO_SAMPLE *sample = NULL;
+	ALLEGRO_SAMPLE *sample2 = NULL;
+	ALLEGRO_SAMPLE_INSTANCE *instance3 = NULL;
 	//these two variables hold the x and y positions of the square
 	//initalize these variables to where you want your square to start
 	float paddle_x = 30;
@@ -21,10 +31,15 @@ int main()
 	float paddle2_w = 32;
 	float paddle2_h = 75;
 
-	float ball_x = 180;
-	float ball_y = 160;
+	float ball_x = 100;
+	float ball_y = 100;
 	float ball_w = 32;
 	float ball_h = 32;
+
+	int score = 0;
+	int score2 = 0;
+
+	int time = 1000;
 	//here's our key states. they're all starting as "false" because nothing has been pressed yet.
 	//the first slot represents "up", then "down", "left" and "right"
 	float ball_dx = 4.0, ball_dy = -4.0;
@@ -38,17 +53,39 @@ int main()
 	bool doexit = false;
 
 	al_init();
+	al_init_font_addon();
+	al_init_ttf_addon();
+	al_init_acodec_addon();
+	al_install_audio();
+	al_init_acodec_addon();
+	al_reserve_samples(10);
+	al_init_image_addon();//added by mo
 
 	//get the keyboard ready to use
 	al_install_keyboard();
+
+	sample2 = al_load_sample("ChillingMusic.wav");
+
+	instance3 = al_create_sample_instance(sample2);
+
+	al_set_sample_instance_playmode(instance3, ALLEGRO_PLAYMODE_LOOP);
+
+	al_attach_sample_instance_to_mixer(instance3, al_get_default_mixer());
+
+	al_play_sample_instance(instance3);
+
+	font = al_load_ttf_font("INVASION2000.ttf", 50, NULL);
+	if (font == NULL)
+		cout << "ooops" << endl;
 
 	timer = al_create_timer(.02);
 
 	display = al_create_display(640, 480);
 
-	ball = al_create_bitmap(32, 32);
-	al_set_target_bitmap(ball);
-	al_clear_to_color(al_map_rgb(137, 200, 5));
+	//ball = al_create_bitmap(32, 32);
+	//al_set_target_bitmap(ball);
+	//al_clear_to_color(al_map_rgb(137, 200, 5));
+	ball = al_load_bitmap("Tennis_Ball_32x32.png");
 
 	paddle = al_create_bitmap(32, 75);
 
@@ -65,6 +102,28 @@ int main()
 
 	event_queue = al_create_event_queue();
 
+	if (!al_install_audio()) {
+		fprintf(stderr, "failed to initialize audio!\n");
+		return -1;
+	}
+
+	if (!al_init_acodec_addon()) {
+		fprintf(stderr, "failed to initialize audio codecs!\n");
+		return -1;
+	}
+
+	if (!al_reserve_samples(1)) {
+		fprintf(stderr, "failed to reserve samples!\n");
+		return -1;
+	}
+
+	sample = al_load_sample("tennisserve.wav");
+
+	if (!sample) {
+		printf("Audio clip sample not loaded!\n");
+		return -1;
+	}
+
 	//these lines tell teh event source what to look for
 	al_register_event_source(event_queue, al_get_display_event_source(display));
 
@@ -79,10 +138,18 @@ int main()
 
 	al_start_timer(timer);
 
+
+	al_draw_text(font, al_map_rgb(255, 0, 0), 640 / 2, (480 / 4), ALLEGRO_ALIGN_CENTRE, "PONG!");
+	
+
+	al_flip_display();
+	al_rest(1);
+
 	//so the game loop is set to act on "ticks" of the timer OR keyboard presses 
 	//OR the mouse closing the display
 	while (!doexit)
 	{
+		time--;
 		ALLEGRO_EVENT ev;
 		al_wait_for_event(event_queue, &ev);
 
@@ -131,10 +198,21 @@ int main()
 				ball_dx = -ball_dx;
 			}
 			//if the box hits the top wall OR the bottom wall
-			if (ball_y < 0 || ball_y > 480 - 32) {
-				//flip the y direction
+			if (ball_y < 0) {
 				ball_dy = -ball_dy;
+			}
 				//redraw at every tick of the timer
+			if (ball_y > 480 - 32) {
+				ball_dy = -ball_dy;
+			}
+
+			if (ball_x == 0) {
+				ball_dx = -ball_dx;
+				score++;
+			}
+			if (ball_x == 640 - 32) {
+				ball_dx = -ball_dx;
+				score2++;
 			}
 
 			ball_x += ball_dx;
@@ -142,10 +220,10 @@ int main()
 
 
 			if ((collision(paddle_x, paddle_y, paddle_w, paddle_h, ball_x, ball_y, ball_w, ball_h) == 1) ||
-				(collision(paddle2_x, paddle2_y, paddle2_w,paddle2_h, ball_x, ball_y, ball_w, ball_h) == 1))
+				(collision(paddle2_x, paddle2_y, paddle2_w, paddle2_h, ball_x, ball_y, ball_w, ball_h) == 1)) {
 				ball_dx = -ball_dx;
-
-
+				al_play_sample(sample, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+			}
 
 			redraw = true;
 		}
@@ -224,14 +302,54 @@ int main()
 			//paint black over the old screen, so the old square dissapears
 			//al_clear_to_color(al_map_rgb(0, 0, 0));
 			al_clear_to_color(al_map_rgb(0, 0, 0));
+
+
+			al_draw_textf(font, al_map_rgb(255, 255, 255), 150, 10, ALLEGRO_ALIGN_CENTRE, "score = %i", score2);
+			al_draw_textf(font, al_map_rgb(255, 255, 255), 450, 10, ALLEGRO_ALIGN_CENTRE, "score = %i", score);
+			al_draw_textf(font, al_map_rgb(255, 255, 255), 300, 400, ALLEGRO_ALIGN_CENTRE, "time = %i", time / 10);
+
+			
+			if (ball_y > paddle_y)
+				paddle_y = paddle_y + 2;
+			if (ball_y < paddle_y)
+				paddle_y = paddle_y - 2;
+
+
 			//the algorithm above just changes the x and y coordinates
 			//here's where the bitmap is actually drawn somewhere else
 			al_draw_bitmap(ball, ball_x, ball_y, 0);
 			al_draw_bitmap(paddle, paddle_x, paddle_y, 0);
 			al_draw_bitmap(paddle2, paddle2_x, paddle2_y, 0);
+			if (time < 0 && score > score2) {
+				al_clear_to_color(al_map_rgb(0, 0, 0));
+				al_draw_text(font, al_map_rgb(255, 0, 0), 640 / 2, (480 / 4), ALLEGRO_ALIGN_CENTRE, "Player Wins!");
+			}
+
+			if (time < 0)
+				break;
+			
+			al_convert_mask_to_alpha(ball, al_map_rgb(0, 0, 0));
 			al_flip_display();
 		}
+	}//end game loop
+	if (score > score2) {
+		al_clear_to_color(al_map_rgb(0, 0, 0));
+		al_draw_text(font, al_map_rgb(255, 0, 0), 640 / 2, (480 / 4), ALLEGRO_ALIGN_CENTRE, "Player Wins!");
 	}
+
+	if (score2 > score) {
+		al_clear_to_color(al_map_rgb(0, 0, 0));
+		al_draw_text(font, al_map_rgb(255, 0, 0), 640 / 2, (480 / 4), ALLEGRO_ALIGN_CENTRE, "CPU Wins!");
+
+	}
+
+	if (score2 == score) {
+		al_clear_to_color(al_map_rgb(0, 0, 0));
+		al_draw_text(font, al_map_rgb(255, 0, 0), 640 / 2, (480 / 4), ALLEGRO_ALIGN_CENTRE, "Tie!");
+	}
+	
+	al_flip_display();
+	al_rest(5);
 
 	al_destroy_bitmap(ball);
 	al_destroy_bitmap(paddle);
@@ -239,6 +357,7 @@ int main()
 	al_destroy_timer(timer);
 	al_destroy_display(display);
 	al_destroy_event_queue(event_queue);
+	al_destroy_sample(sample);
 
 	return 0;
 }
@@ -246,9 +365,9 @@ int main()
 int collision(int b1x, int b1y, int b1w, int b1h, int b2x, int b2y, int b2w, int b2h) {
 	if ((b2x > b1x + b1w) || //box2 is to the right of box1
 		(b2x + b2w< b1x) ||//box2 is to the left of box1
-		(b2y > b1y + b1w) || 
-		(b2y + b2w< b1y) ||
-		(b1y + b1h<b2y) ||
+		(b2y > b1y + b1h) || 
+		(b2y + b2h< b1y) ||
+		(b1y + b1h< b2y) ||
 		(b1y > b2y + b2h))
 		return 0;
 	else
